@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Phone } from "lucide-react";
 import { company, telHref } from "@/lib/company";
+import gssrLogo from "@/assets/gssr-logo.svg";
 
 const links = [
   { to: "/", label: "Home" },
@@ -13,9 +14,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur">
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-4 sm:flex sm:justify-between">
         <Link to="/" className="flex min-w-0 items-center gap-3">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-sm border border-accent font-display text-sm font-bold text-primary">
-            GS
-          </span>
+          <img src={gssrLogo} alt="GSSR Logo" className="h-10 w-auto shrink-0" />
           <span className="min-w-0">
             <span className="block truncate font-display text-sm font-bold tracking-tight sm:text-base">
               {company.name}
