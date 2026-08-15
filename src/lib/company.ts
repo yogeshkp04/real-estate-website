@@ -45,3 +45,77 @@ export const constructionServices = [
   "Architecture",
   "Vastu Consultant",
 ];
+
+export interface Project {
+  id: string;
+  title: string;
+  category: "Residential" | "Commercial" | "Industrial" | "Plots" | "Construction";
+  location: string;
+  image: string;
+  description: string;
+  year: number;
+  details?: string[];
+}
+
+export const projects: Project[] = [
+  {
+    id: "1",
+    title: "Premium Villas - White Field",
+    category: "Residential",
+    location: "Whitefield, Bengaluru",
+    image: "hero-villa.jpg",
+    description: "Luxury villa complex with modern amenities and sustainable design",
+    year: 2023,
+    details: ["12 units", "Individual villas", "3-4 BHK", "Clubhouse & Gardens"],
+  },
+  {
+    id: "2",
+    title: "Residential Apartments Complex",
+    category: "Residential",
+    location: "Koramangala, Bengaluru",
+    image: "house-night.jpg",
+    description: "Multi-story residential complex with world-class facilities",
+    year: 2022,
+    details: ["180 apartments", "2-3 BHK", "Swimming pool", "Gym & Yoga center"],
+  },
+  {
+    id: "3",
+    title: "Commercial Office Space",
+    category: "Commercial",
+    location: "Indiranagar, Bengaluru",
+    image: "plots-aerial.jpg",
+    description: "Modern commercial building designed for corporate offices",
+    year: 2023,
+    details: ["50,000 Sq.ft", "IT Parks", "Parking facility", "Conference rooms"],
+  },
+  {
+    id: "4",
+    title: "Industrial Warehouse",
+    category: "Industrial",
+    location: "Peenya, Bengaluru",
+    image: "hero-villa.jpg",
+    description: "Large-scale industrial warehouse with modern infrastructure",
+    year: 2021,
+    details: ["100,000 Sq.ft", "Loading docks", "24/7 Security", "Separate offices"],
+  },
+  {
+    id: "5",
+    title: "Residential Plot Development",
+    category: "Plots",
+    location: "Sarjapur Road, Bengaluru",
+    image: "plots-aerial.jpg",
+    description: "Well-planned residential plot community with excellent connectivity",
+    year: 2022,
+    details: ["150 plots", "25x40 to 50x80", "Ready to build", "Gated community"],
+  },
+  {
+    id: "6",
+    title: "Commercial Plot - BBMP Approved",
+    category: "Plots",
+    location: "Marathahalli, Bengaluru",
+    image: "house-night.jpg",
+    description: "BBMP approved commercial plots ideal for retail and offices",
+    year: 2023,
+    details: ["20 plots", "Commercial zoning", "High visibility", "Road access"],
+  },
+];

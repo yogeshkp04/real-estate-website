@@ -5,6 +5,7 @@ import gssrLogo from "@/assets/gssr-logo.svg";
 
 const links = [
   { to: "/", label: "Home" },
+  { to: "/projects", label: "Gallery" },
   { to: "/services", label: "Services" },
   { to: "/contact", label: "Contact" },
 ] as const;
