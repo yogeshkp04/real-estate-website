@@ -28,3 +28,11 @@ npm run dev
 - React
 - Tailwind CSS
 # real-estate-website
+
+## Deployed
+
+The site is set to deploy via GitHub Actions to GitHub Pages. Once the workflow completes, the site will be available at:
+
+https://yogeshkp04.github.io/real-estate-website/
+
+If you want to use a custom domain, tell me the domain and I'll add a `CNAME` file and push it for you.
