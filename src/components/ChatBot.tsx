@@ -15,6 +15,14 @@ interface ChatbotData {
   requirement?: string;
 }
 
+interface ConversationStep {
+  botMessage: string;
+  dataKey?: keyof ChatbotData;
+  validation?: (value: string) => boolean;
+  validationError?: string;
+  isWelcome?: boolean;
+}
+
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -24,28 +32,32 @@ export function ChatBot() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const conversationSteps = [
+  const conversationSteps: ConversationStep[] = [
     {
       botMessage:
-        "Hello! 👋 Welcome to Guru Shree Sai Realators. I'm here to help! What's your name?",
-      dataKey: "name" as const,
+        "Hello! 👋 Welcome to Guru Shree Sai Realators - Your trusted partner for Real Estate, Legal Documentation & Construction Services in Bengaluru. We're here to help you find your perfect property or fulfill your real estate dreams! 🏠",
+      isWelcome: true,
+    },
+    {
+      botMessage: "Before we get started, what's your name?",
+      dataKey: "name",
     },
     {
       botMessage: "Nice to meet you! What's your contact number?",
-      dataKey: "phone" as const,
+      dataKey: "phone",
       validation: (value: string) => /^[0-9]{10}$/.test(value),
       validationError: "Please enter a valid 10-digit phone number",
     },
     {
       botMessage: "What's your email address?",
-      dataKey: "email" as const,
+      dataKey: "email",
       validation: (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
       validationError: "Please enter a valid email address",
     },
     {
       botMessage:
         "What property are you interested in? (e.g., Residential, Commercial, Plots, etc.)",
-      dataKey: "requirement" as const,
+      dataKey: "requirement",
     },
   ];
 
@@ -78,6 +90,33 @@ export function ChatBot() {
     e.preventDefault();
     if (!userInput.trim()) return;
 
+    const currentStepData = conversationSteps[currentStep];
+
+    // If current step is welcome, just move to next step
+    if (currentStepData.isWelcome) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        type: "user",
+        text: userInput,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, userMessage]);
+      setUserInput("");
+
+      // Move to next step
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+
+      const nextBotMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        type: "bot",
+        text: conversationSteps[nextStep].botMessage,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, nextBotMessage]);
+      return;
+    }
+
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -88,7 +127,6 @@ export function ChatBot() {
     setMessages((prev) => [...prev, userMessage]);
 
     // Validate current step
-    const currentStepData = conversationSteps[currentStep];
     if (
       currentStepData.validation &&
       !currentStepData.validation(userInput)
@@ -150,7 +188,7 @@ export function ChatBot() {
         const thankYouMessage: Message = {
           id: (Date.now() + 3).toString(),
           type: "bot",
-          text: `Thank you, ${finalData.name}! 🎉 We've received your enquiry. Our team will contact you shortly on ${finalData.phone}. Have a great day!`,
+          text: `Perfect! Thank you, ${finalData.name}! 🎉\n\nWe've successfully received your enquiry for ${finalData.requirement}. Our team at Guru Shree Sai Realators will contact you shortly on ${finalData.phone} or ${finalData.email}.\n\nWe look forward to helping you achieve your real estate goals! 🏠`,
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, thankYouMessage]);
@@ -187,24 +225,26 @@ export function ChatBot() {
           }
           setIsOpen(!isOpen);
         }}
-        className="fixed bottom-4 right-4 z-40 rounded-full bg-accent p-4 text-accent-foreground shadow-lg transition-all hover:scale-110"
+        className="fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-primary px-4 py-4 text-accent-foreground shadow-lg transition-all hover:scale-110 hover:shadow-xl"
         aria-label="Open chat"
+        title="Chat with us!"
       >
         <MessageCircle className="h-6 w-6" />
+        {!isOpen && <span className="text-sm font-semibold">Chat Now</span>}
       </button>
 
       {/* Chat Window */}
       {isOpen && (
         <div className="fixed bottom-20 right-4 z-40 w-80 overflow-hidden rounded-lg border border-border bg-card shadow-xl sm:w-96">
           {/* Header */}
-          <div className="flex items-center justify-between bg-primary px-4 py-4 text-primary-foreground">
+          <div className="flex items-center justify-between bg-gradient-to-r from-primary to-accent px-4 py-4 text-primary-foreground">
             <div>
-              <h3 className="font-display text-lg font-semibold">GSSR Assistant</h3>
-              <p className="text-xs opacity-90">We typically reply instantly</p>
+              <h3 className="font-display text-lg font-semibold">Welcome! 👋</h3>
+              <p className="text-xs opacity-90">GSSR Assistant - Here to help</p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="rounded-full p-1 hover:bg-primary/80"
+              className="rounded-full p-1 hover:bg-white/20"
               aria-label="Close chat"
             >
               <X className="h-5 w-5" />
@@ -244,7 +284,11 @@ export function ChatBot() {
                 type="text"
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
-                placeholder="Type your response..."
+                placeholder={
+                  conversationSteps[currentStep]?.isWelcome
+                    ? "Type anything to continue..."
+                    : "Type your response..."
+                }
                 disabled={isSubmitting}
                 className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
               />
