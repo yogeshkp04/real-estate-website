@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Building2, Gavel, HardHat, MessageCircle, Phone, ShieldCheck, ArrowRight } from "lucide-react";
+import { Building2, Gavel, HardHat, MessageCircle, Phone, ShieldCheck } from "lucide-react";
 import heroVilla from "@/assets/hero-villa.jpg";
 import houseNight from "@/assets/house-night.jpg";
 import plotsAerial from "@/assets/plots-aerial.jpg";
@@ -14,7 +14,6 @@ import {
   telHref,
   transactions,
   waHref,
-  projects,
 } from "@/lib/company";
 
 export const Route = createFileRoute("/")({
@@ -104,55 +103,6 @@ function Index() {
           </div>
         </section>
 
-        {/* Featured Projects Gallery */}
-        <section className="mx-auto max-w-6xl px-4 py-20">
-          <p className="eyebrow">Our Work</p>
-          <div className="flex items-end justify-between gap-4 md:flex-row">
-            <div>
-              <h2 className="mt-3 max-w-2xl font-display text-2xl sm:text-4xl">
-                Real projects, real results
-              </h2>
-              <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                Explore our portfolio of completed residential, commercial and industrial projects
-                across Bengaluru.
-              </p>
-            </div>
-            <Link
-              to="/projects"
-              className="mb-1 inline-flex shrink-0 items-center gap-2 rounded-sm border border-foreground/20 px-4 py-2 text-sm font-medium transition-colors hover:bg-secondary"
-            >
-              View Gallery
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-
-          {/* Gallery Grid */}
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {projects.slice(0, 6).map((project) => (
-              <Link
-                key={project.id}
-                to="/projects"
-                className="group overflow-hidden rounded-md border border-border transition-all hover:border-accent hover:shadow-lg"
-              >
-                <div className="relative h-48 overflow-hidden bg-muted">
-                  <img
-                    src={project.image.includes("house-night") ? houseNight : project.image.includes("plots") ? plotsAerial : heroVilla}
-                    alt={project.title}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-accent">
-                      {project.category}
-                    </p>
-                    <h3 className="mt-2 font-display text-lg font-semibold">{project.title}</h3>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
         {/* Bento grid of services */}
         <section className="mx-auto max-w-6xl px-4 py-20">
           <p className="eyebrow">What we do</p>
@@ -161,6 +111,22 @@ function Index() {
           </h2>
 
           <div className="mt-10 grid gap-4 md:grid-cols-3 md:grid-rows-[auto_auto]">
+            {/* House Night Image - comes before Property Dealings */}
+            <article className="card-elevated overflow-hidden rounded-md border border-border md:col-span-2">
+              <img
+                src={houseNight}
+                alt="Independent house with a modern elevation at night"
+                loading="lazy"
+                width={1200}
+                height={900}
+                className="h-52 w-full object-cover md:h-full"
+              />
+            </article>
+
+            {/* Placeholder for grid alignment */}
+            <div></div>
+
+            {/* Property Dealings - comes after image */}
             <article className="card-elevated rounded-md border border-border bg-card p-7 md:col-span-2">
               <Building2 className="h-6 w-6 text-accent" aria-hidden="true" />
               <h3 className="mt-4 font-display text-xl">Property Dealings</h3>
@@ -178,10 +144,11 @@ function Index() {
               </ul>
             </article>
 
+            {/* Plots Aerial Image - comes before Documentation */}
             <article className="card-elevated overflow-hidden rounded-md border border-border">
               <img
-                src={houseNight}
-                alt="Independent house with a modern elevation at night"
+                src={plotsAerial}
+                alt="Aerial view of an approved residential plot layout"
                 loading="lazy"
                 width={1200}
                 height={900}
@@ -189,6 +156,7 @@ function Index() {
               />
             </article>
 
+            {/* Documentation - comes after image */}
             <article className="card-elevated rounded-md border border-border bg-primary p-7 text-primary-foreground">
               <ShieldCheck className="h-6 w-6 text-accent" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg">Documentation you can trust</h3>
@@ -197,6 +165,7 @@ function Index() {
               </p>
             </article>
 
+            {/* Legal & Documentation */}
             <article className="card-elevated rounded-md border border-border bg-card p-7">
               <Gavel className="h-6 w-6 text-accent" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg">Legal & Documentation</h3>
@@ -210,6 +179,7 @@ function Index() {
               </ul>
             </article>
 
+            {/* Construction & Design */}
             <article className="card-elevated rounded-md border border-border bg-card p-7">
               <HardHat className="h-6 w-6 text-accent" aria-hidden="true" />
               <h3 className="mt-4 font-display text-lg">Construction & Design</h3>
@@ -221,17 +191,6 @@ function Index() {
                   </li>
                 ))}
               </ul>
-            </article>
-
-            <article className="card-elevated overflow-hidden rounded-md border border-border">
-              <img
-                src={plotsAerial}
-                alt="Aerial view of an approved residential plot layout"
-                loading="lazy"
-                width={1200}
-                height={900}
-                className="h-52 w-full object-cover md:h-full"
-              />
             </article>
           </div>
 
