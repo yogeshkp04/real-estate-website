@@ -57,7 +57,7 @@ function Index() {
           <div className="hero-overlay absolute inset-0" />
           <div className="relative mx-auto max-w-6xl px-4 py-28 sm:py-36">
             <p className="eyebrow text-primary-foreground/70">{company.blessing}</p>
-            <h1 className="mt-5 max-w-3xl font-display text-3xl text-primary-foreground sm:text-5xl">
+            <h1 className="mt-5 max-w-3xl font-display text-4xl font-black sm:text-6xl bg-gradient-to-r from-primary-foreground via-accent to-primary-foreground bg-clip-text text-transparent drop-shadow-lg">
               {company.name}
             </h1>
             <div className="mt-6 flex items-center gap-4">
@@ -106,7 +106,7 @@ function Index() {
         {/* Bento grid of services */}
         <section className="mx-auto max-w-6xl px-4 py-20">
           <p className="eyebrow">What we do</p>
-          <h2 className="mt-3 max-w-2xl font-display text-2xl sm:text-4xl">
+          <h2 className="mt-3 max-w-2xl font-display text-3xl font-bold sm:text-5xl bg-gradient-to-r from-foreground to-accent bg-clip-text text-transparent">
             Property, paperwork and construction — under one roof
           </h2>
 
@@ -206,7 +206,7 @@ function Index() {
         <section className="mx-auto max-w-6xl px-4 pb-20">
           <div className="rounded-md border border-border bg-secondary px-6 py-14 sm:px-14">
             <p className="eyebrow">Get in touch</p>
-            <h2 className="mt-3 max-w-xl font-display text-2xl sm:text-3xl">
+            <h2 className="mt-3 max-w-xl font-display text-3xl font-bold sm:text-4xl bg-gradient-to-r from-foreground via-accent to-foreground bg-clip-text text-transparent">
               Ready to talk about your property?
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
