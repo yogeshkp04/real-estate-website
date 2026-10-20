@@ -74,10 +74,10 @@ export const POST = async (request: Request) => {
 
     const runtimeEnv = (globalThis as typeof globalThis & RuntimeEnv).process?.env ?? {};
     const supabaseUrl = runtimeEnv.SUPABASE_URL?.replace(/\/$/, "");
-    const supabaseSecretKey =
-      runtimeEnv.SUPABASE_SECRET_KEY ?? runtimeEnv.SUPABASE_SERVICE_ROLE_KEY;
+    // Use the public anon key with a narrowly scoped INSERT policy; never use a service-role key here.
+    const supabaseAnonKey = runtimeEnv.SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseSecretKey) {
+    if (!supabaseUrl || !supabaseAnonKey) {
       console.error("Enquiry storage is not configured: missing server-side Supabase environment variables.");
       return json({ error: "Enquiry service is temporarily unavailable. Please call or WhatsApp us." }, { status: 503 });
     }
@@ -85,8 +85,8 @@ export const POST = async (request: Request) => {
     const response = await fetch(`${supabaseUrl}/rest/v1/enquiries`, {
       method: "POST",
       headers: {
-        apikey: supabaseSecretKey,
-        Authorization: `Bearer ${supabaseSecretKey}`,
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`,
         "Content-Type": "application/json",
         Prefer: "return=minimal",
       },
