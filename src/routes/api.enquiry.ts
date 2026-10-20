@@ -1,51 +1,120 @@
 import { json } from "@tanstack/react-start";
 
 interface EnquiryData {
-  name?: string;
-  phone?: string;
-  email?: string;
-  requirement?: string;
+  name?: unknown;
+  phone?: unknown;
+  email?: unknown;
+  requirement?: unknown;
+  message?: unknown;
+}
+
+type RuntimeEnv = {
+  process?: { env?: Record<string, string | undefined> };
+};
+
+const MAX_BODY_BYTES = 10 * 1024;
+const MAX_FIELD_LENGTH = 2000;
+
+function cleanText(value: unknown, maxLength = 500): string | null {
+  if (typeof value !== "string") return null;
+  const cleaned = value.trim();
+  if (!cleaned || cleaned.length > maxLength) return null;
+  return cleaned;
 }
 
 export const POST = async (request: Request) => {
   try {
-    const data: EnquiryData = await request.json();
+    if (!request.headers.get("content-type")?.toLowerCase().includes("application/json")) {
+      return json({ error: "Content-Type must be application/json" }, { status: 415 });
+    }
 
-    // Validate required fields
-    if (!data.name || !data.phone || !data.email || !data.requirement) {
+    const contentLength = Number(request.headers.get("content-length") ?? "0");
+    if (contentLength > MAX_BODY_BYTES) {
+      return json({ error: "Request body is too large" }, { status: 413 });
+    }
+
+    const rawBody = await request.text();
+    if (new TextEncoder().encode(rawBody).byteLength > MAX_BODY_BYTES) {
+      return json({ error: "Request body is too large" }, { status: 413 });
+    }
+
+    const data = JSON.parse(rawBody) as EnquiryData;
+    const name = cleanText(data.name, 100);
+    const phone = cleanText(data.phone, 30);
+    const email = cleanText(data.email, 254)?.toLowerCase() ?? null;
+    const requirement = cleanText(data.requirement, 1000);
+    const message = data.message === undefined || data.message === null || data.message === ""
+      ? null
+      : cleanText(data.message, MAX_FIELD_LENGTH);
+
+    if (!name || !phone || !email || !requirement || (data.message && !message)) {
       return json(
-        { error: "Missing required fields" },
-        { status: 400 }
+        { error: "Please provide a valid name, phone, email and requirement." },
+        { status: 400 },
       );
     }
 
-    // In a production app, you would:
-    // 1. Save to database
-    // 2. Send email to admin
-    // 3. Send confirmation email to customer
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return json({ error: "Please provide a valid email address." }, { status: 400 });
+    }
 
-    // For now, we'll just log and return success
-    console.log("New enquiry received:", {
-      timestamp: new Date().toISOString(),
-      ...data,
+    // Reject browser cross-origin submissions unless the origin is explicitly allowed.
+    const origin = request.headers.get("origin");
+    if (origin) {
+      const runtimeEnv = (globalThis as typeof globalThis & RuntimeEnv).process?.env ?? {};
+      const allowedOrigins = (runtimeEnv.APP_ALLOWED_ORIGINS ?? "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+      allowedOrigins.push(new URL(request.url).origin);
+      if (!allowedOrigins.includes(origin)) {
+        return json({ error: "Request origin is not allowed." }, { status: 403 });
+      }
+    }
+
+    const runtimeEnv = (globalThis as typeof globalThis & RuntimeEnv).process?.env ?? {};
+    const supabaseUrl = runtimeEnv.SUPABASE_URL?.replace(/\/$/, "");
+    const supabaseSecretKey =
+      runtimeEnv.SUPABASE_SECRET_KEY ?? runtimeEnv.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseSecretKey) {
+      console.error("Enquiry storage is not configured: missing server-side Supabase environment variables.");
+      return json({ error: "Enquiry service is temporarily unavailable. Please call or WhatsApp us." }, { status: 503 });
+    }
+
+    const response = await fetch(`${supabaseUrl}/rest/v1/enquiries`, {
+      method: "POST",
+      headers: {
+        apikey: supabaseSecretKey,
+        Authorization: `Bearer ${supabaseSecretKey}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({
+        name,
+        phone,
+        email,
+        requirement,
+        message,
+        source: "website",
+      }),
     });
 
-    // TODO: Integrate with email service (SendGrid, Nodemailer, etc.)
-    // TODO: Save to database
+    if (!response.ok) {
+      const responseDetails = await response.text();
+      console.error("Supabase rejected an enquiry insert:", response.status, responseDetails);
+      return json({ error: "We couldn't save your enquiry. Please call or WhatsApp us." }, { status: 502 });
+    }
 
     return json(
-      {
-        success: true,
-        message: "Enquiry received successfully",
-        enquiry: data,
-      },
-      { status: 200 }
+      { success: true, message: "Enquiry received successfully." },
+      { status: 201 },
     );
   } catch (error) {
+    if (error instanceof SyntaxError) {
+      return json({ error: "Request body must be valid JSON." }, { status: 400 });
+    }
     console.error("Error processing enquiry:", error);
-    return json(
-      { error: "Failed to process enquiry" },
-      { status: 500 }
-    );
+    return json({ error: "Failed to process enquiry." }, { status: 500 });
   }
 };
